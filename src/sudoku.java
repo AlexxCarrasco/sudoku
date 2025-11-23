@@ -8,8 +8,8 @@ public class sudoku extends JDialog{
 
     private JPanel j31;private JLabel t31;private JLabel t32;private JPanel j32;private JPanel j34;private JPanel j37;private JPanel j35;private JPanel j38;private JPanel j36;private JPanel j33;private JPanel j39;
     private JLabel t39;private JLabel t33;private JLabel t36;private JLabel t34;private JLabel t37;private JLabel t35;private JLabel t38;private JPanel j3;private JPanel j211;private JLabel t21;private JPanel j221;
-    private JPanel j231;private JPanel j241;private JPanel j251;private JPanel j261;private JPanel j271;private JPanel j281;private JPanel j291;
-    private JLabel t22;private JLabel t23;private JLabel t24;private JLabel t25;private JLabel t26;private JLabel t27;private JLabel t28;private JLabel t29;
+    private JPanel j241;private JPanel j251;private JPanel j231;private JPanel j261;private JPanel j271;private JPanel j281;private JPanel j291;
+    private JLabel t22;private JLabel t24;private JLabel t25;private JLabel t23;private JLabel t26;private JLabel t27;private JLabel t28;private JLabel t29;
     private JPanel j2;private JPanel j4;private JPanel j5;private JPanel j6;private JPanel j7;private JPanel j8;private JPanel j9;
     private JPanel j41;private JPanel j42;private JPanel j44;private JPanel j45;private JPanel j43;private JPanel j46;private JPanel j48;private JPanel j49;private JPanel j47;
     private JLabel t41;private JLabel t42;private JLabel t44;private JLabel t45;private JLabel t43;private JLabel t46;private JLabel t49;private JLabel t48;private JLabel t47;private JPanel j51;
@@ -31,10 +31,11 @@ public class sudoku extends JDialog{
 
     public sudoku() {
         setContentPane(panelP);
+
         JPanel [] paneles1 = new JPanel[] {j11,j12,j13,j14,j15,j16,j17,j18,j19};
         JLabel [] letras1 = new JLabel[] { t11,t12,t13,t14,t15,t16,t17,t18,t19};
-        JPanel [] paneles2 = new JPanel[] {j211,j221, j231, j241,j251,j261,j271,j281,j291};
-        JLabel [] letras2 = new JLabel[] {t21,t22,t23,t24,t25,t26,t27,t28,t29};
+        JPanel [] paneles2 = new JPanel[] {j211,j221, j231, j241, j251,j261,j271,j281,j291};
+        JLabel [] letras2 = new JLabel[] {t21,t22, t23, t24, t25,t26,t27,t28,t29};
         JPanel [] paneles3 = new JPanel[] {j31,j32,j33,j34,j35,j36,j37,j38,j39};
         JLabel [] letras3 = new JLabel[] {t31,t32,t33,t34,t35,t36,t37,t38, t39};
         JPanel [] paneles4 = new JPanel[]{j41,j42,j43,j44,j45,j46,j47,j48,j49};
@@ -53,47 +54,47 @@ public class sudoku extends JDialog{
         j1.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles1);
         addLetraToPanel(paneles1,letras1);
-        llenarLetras(letras1);
+        //llenarLetras(letras1);
 
         j2.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles2);
         addLetraToPanel(paneles2,letras2);
-        llenarLetras(letras2);
+        //llenarLetras(letras2);
 
         j3.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles3);
         addLetraToPanel(paneles3,letras3);
-        llenarLetras(letras3);
+        //llenarLetras(letras3);
 
         j4.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles4);
         addLetraToPanel(paneles4,letras4);
-        llenarLetras(letras4);
+        //llenarLetras(letras4);
 
         j5.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles5);
         addLetraToPanel(paneles5,letras5);
-        llenarLetras(letras5);
+        //llenarLetras(letras5);
 
         j6.setBorder(BorderFactory.createLineBorder(Color.GRAY,2));
         llenarPaneles(paneles6);
         addLetraToPanel(paneles6,letras6);
-        llenarLetras(letras6);
+        //llenarLetras(letras6);
 
         j7.setBorder(BorderFactory.createLineBorder(Color.GRAY,2));
         llenarPaneles(paneles7);
         addLetraToPanel(paneles7,letras7);
-        llenarLetras(letras7);
+        //llenarLetras(letras7);
 
         j8.setBorder(BorderFactory.createLineBorder(Color.GRAY,2));
         llenarPaneles(paneles8);
         addLetraToPanel(paneles8,letras8);
-        llenarLetras(letras8);
+        //llenarLetras(letras8);
 
         j9.setBorder(BorderFactory.createLineBorder(Color.GRAY,2));
         llenarPaneles(paneles9);
         addLetraToPanel(paneles9,letras9);
-        llenarLetras(letras9);
+        //llenarLetras(letras9);
 
         button.setHorizontalAlignment(SwingConstants.CENTER);
         button.setVerticalAlignment(SwingConstants.CENTER);
@@ -108,6 +109,19 @@ public class sudoku extends JDialog{
         titulo.setText("SUDOKU");
         titulo.setFont(new Font("Arial", Font.BOLD, 42));
 
+        for(int i=0; i< matrizOr.length; i++){
+            switch (i){
+                case 0: llenarLetras(letras1, matrizOr[i]);break;
+                case 1: llenarLetras(letras2, matrizOr[i]);break;
+                case 2: llenarLetras(letras3, matrizOr[i]);break;
+                case 3: llenarLetras(letras4, matrizOr[i]);break;
+                case 4: llenarLetras(letras5, matrizOr[i]);break;
+                case 5: llenarLetras(letras6, matrizOr[i]);break;
+                case 6: llenarLetras(letras7, matrizOr[i]);break;
+                case 7: llenarLetras(letras8, matrizOr[i]);break;
+                case 8: llenarLetras(letras9, matrizOr[i]);break;
+            }
+        }
 
     }
 
@@ -129,13 +143,17 @@ public class sudoku extends JDialog{
         jPanel.add(jLabel, BorderLayout.CENTER);
     }
 
-    public void llenarLetras(JLabel [] letras) {
+    public void llenarLetras(JLabel [] letras, int [] bloque) {
         //Solo pruebas
         for(int i=0; i<letras.length; i++){
-            letras[i].setText(1+i + "");
-            letras[i].setVerticalAlignment(JLabel.CENTER);
-            letras[i].setHorizontalAlignment(JLabel.CENTER);
-            letras[i].setFont(new Font("Arial", Font.BOLD, 44));
+            letras[i].setFont(new Font("Arial", Font.BOLD, 42));
+            letras[i].setVerticalAlignment(SwingConstants.CENTER);
+            letras[i].setHorizontalAlignment(SwingConstants.CENTER);
+            if(bloque[i]!=0){
+                letras[i].setText(bloque[i] + "");
+            }else{
+                letras[i].setText(" ");
+            }
         }
     }
 
