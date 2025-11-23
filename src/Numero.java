@@ -1,6 +1,8 @@
 public class Numero {
 
     private int numero;
+    private static int contX = 0;
+    private static int contY = 0;
     private Numero [] posibles;
     private Numero [] vecinosX;
     private Numero [] vecinosY;
@@ -9,11 +11,24 @@ public class Numero {
 
     public Numero(int numero) {
         this.numero = numero;
+        vecinosX = new Numero[8];
+        vecinosY = new Numero[8];
     }
 
     public int getNumero() {
         return numero;
     }
+
+    public void addVecinoX(Numero numero) {
+        vecinosX[contX] = numero;
+        contX++;
+    }
+
+    public void addVecinoY(Numero numero) {
+        vecinosX[contY] = numero;
+        contY++;
+    }
+
     public void setNumero(int numero) {
         this.numero = numero;
     }
