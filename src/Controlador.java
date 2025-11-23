@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Controlador {
 
@@ -162,31 +164,36 @@ public class Controlador {
     }
 
     public int [] getPosiblesTotal(int [] numerosX, int [] numerosY, int [] numerosB){
-        ArrayList<Integer> posiblesSemiFinal = new ArrayList<>();
-        ArrayList<Integer> posiblesFinal = new ArrayList<>();
-        for(int i=0; i<numerosX.length; i++){
-            for(int j=0; j<numerosY.length; j++){
-                if(numerosX[i]==numerosY[j]){
-                    posiblesSemiFinal.add(numerosX[i]);
-                }
-            }
+        Set<Integer> setX = new HashSet<>();
+        for (int num : numerosX) {
+            setX.add(num);
         }
 
-        for(int i=0; i<Integer.min(posiblesSemiFinal.size(), numerosB.length); i++){
-            if(posiblesSemiFinal.get(i)==numerosB[i]){
-                posiblesFinal.add(posiblesSemiFinal.get(i));
-            }
+        Set<Integer> setY = new HashSet<>();
+        for (int num : numerosY) {
+            setY.add(num);
         }
 
-        int [] numerosArr = new int[posiblesFinal.size()];
-        for(int i=0; i<posiblesFinal.size(); i++){
-            numerosArr[i] = posiblesFinal.get(i);
+        setX.retainAll(setY);
+
+        Set<Integer> setB = new HashSet<>();
+        for (int num : numerosB) {
+            setB.add(num);
         }
+
+        setX.retainAll(setB);
+
+        int [] numerosArr = new int[setX.size()];
+        int index = 0;
+        for (int num : setX) {
+            numerosArr[index++] = num;
+        }
+
         return numerosArr;
     }
 
     public int [] getPosiblesBloque(Numero [] numeros){
-        boolean encontrado = true;
+        boolean encontrado = false;
         ArrayList<Integer> posibles = new ArrayList<Integer>();
 
         for(int j=0; j<9; j++) {

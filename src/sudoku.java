@@ -154,20 +154,22 @@ public class sudoku extends JDialog{
                 Matriz matriz = new Matriz(bloques);
                 Matriz nueva = Controlador.getInstance().resolver(matriz);
 
-               /* int [][] matrizNueva = new int[3][3];
-                int [] arrAux = new int[9];
+               int [][] matrizNueva = new int[9][9];
+
                 int i=0; int j=0;
                 for(Bloque bloqueAux: nueva.getBloques()){
+                    int [] arrAux = new int[9];
                     for(Numero numeroAux: bloqueAux.getNumeros()){
                         arrAux[i] = numeroAux.getNumero();
                         i++;
                     }
                     matrizNueva[j] = arrAux;
                     i=0;
+                    j++;
                 }
 
-                sudoku.display(nueva);
-*/
+                sudoku.display(matrizNueva);
+
 
                 System.out.println(nueva);
             }
@@ -217,9 +219,10 @@ public class sudoku extends JDialog{
     }
 
     public void llenarLetras(JLabel [] letras, int [] bloque) {
-        //Solo pruebas
         System.out.println("LETRAS " + letras.length);
-        for(int i=0; i<letras.length; i++){
+        System.out.println("BLOQUE " + bloque.length);
+
+        for(int i=0; i < letras.length; i++){
             letras[i].setFont(new Font("Arial", Font.BOLD, 42));
             letras[i].setVerticalAlignment(SwingConstants.CENTER);
             letras[i].setHorizontalAlignment(SwingConstants.CENTER);
