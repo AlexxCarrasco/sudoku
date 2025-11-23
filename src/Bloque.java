@@ -3,7 +3,7 @@ public class Bloque {
     private Numero [] numeros;
     private int id;
 
-    public Bloque (int id, int numero){
+    public Bloque (int id){
         this.id=id;
     }
 

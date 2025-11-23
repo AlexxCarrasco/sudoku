@@ -1,7 +1,5 @@
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class Controlador {
 
@@ -21,26 +19,28 @@ public class Controlador {
 
 
     public Matriz resolver(Matriz matrizSudoku){
-
         for(Bloque bloque: matrizSudoku.getBloques()){
             for(Numero numero: bloque.getNumeros()){
                 if(numero.getNumero()==0){
-                    Numero [] vecinoxX = getVecinosX(matrizSudoku, bloque, numero);
-                    Numero [] vecinosY = getVecinosY(matrizSudoku, bloque, numero);
-
-                    Numero [] posibles = getPosibles(bloque, numero);
-
-                    numero.setVecinosX(vecinoxX);
-                    numero.setVecinosY(vecinosY);
-
+                    if(numero.getVecinosX()[0]==null){
+                        getVecinosX(matrizSudoku, bloque, numero);
+                        getVecinosY(matrizSudoku, bloque, numero);
+                    }
+                    int [] posibles = getPosibles(bloque, numero);
+                    System.out.println("Numero es " + numero.getNumero());
+                    System.out.println("En el bloque " + bloque.getId());
+                    System.out.println(Arrays.toString(posibles));
                     if(posibles.length==1){
-                        numero.setNumero(posibles[0].getNumero());
+                        numero.setNumero(posibles[0]);
                     }else{
                         numero.setPosibles(posibles);
                     }
                 }
             }
+
         }
+
+
 
         if(!completo((matrizSudoku))){
             resolver(matrizSudoku);
@@ -63,8 +63,8 @@ public class Controlador {
     public Numero [] getVecinosX(Matriz matrizSudoku, Bloque bloque, Numero posicion){
         int [] bloquesVecinosX = getIdBloquesX(bloque);
         for(Bloque bloque2: matrizSudoku.getBloques()){
-            if(!matchBloques(bloque,bloquesVecinosX)){
-                break;
+            if(!matchBloques(bloque2,bloquesVecinosX)){
+                continue;
             }
             getVecinosX(bloque2,posicion);
         }
@@ -72,11 +72,9 @@ public class Controlador {
     }
 
     public void getVecinosX(Bloque bloque, Numero posicion){
-        Numero [] vecinoX = new Numero[3];
         for(Numero numero: bloque.getNumeros()){
-            if(numero.getPosicionX()==posicion.getPosicionX()){
-                vecinoX[0]=numero;
-                posicion.addVecinoX(vecinoX[0]);
+            if(numero.getPosicionY()==posicion.getPosicionY()){
+                posicion.addVecinoX(numero);
             }
         }
     }
@@ -84,8 +82,8 @@ public class Controlador {
     public Numero [] getVecinosY(Matriz matrizSudoku, Bloque bloque, Numero posicion){
         int [] bloquesVecinosY = getIdBloquesY(bloque);
         for(Bloque bloque2: matrizSudoku.getBloques()){
-            if(!matchBloques(bloque,bloquesVecinosY)){
-                break;
+            if(!matchBloques(bloque2,bloquesVecinosY)){
+                continue;
             }
             getVecinosY(bloque2,posicion);
         }
@@ -93,11 +91,9 @@ public class Controlador {
     }
 
     public void getVecinosY(Bloque bloque, Numero posicion){
-        Numero [] vecinoY = new Numero[3];
         for(Numero numero: bloque.getNumeros()){
-            if(numero.getPosicionY()==posicion.getPosicionY()){
-                vecinoY[0]=numero;
-                posicion.addVecinoY(vecinoY[0]);
+            if(numero.getPosicionX()==posicion.getPosicionX()){
+                posicion.addVecinoY(numero);
             }
         }
     }
@@ -157,40 +153,71 @@ public class Controlador {
         return new int[]{};
     }
 
-    public Numero [] getPosibles(Bloque bloque, Numero posicion){
-        Numero [] getX = getPosibles(posicion.getVecinosX());
-        Numero [] getY = getPosibles(posicion.getVecinosY());
-        Numero [] getB = getPosibles(bloque.getNumeros());
+    public int [] getPosibles(Bloque bloque, Numero posicion){
+        int [] getX = getPosiblesBloque(posicion.getVecinosX());
+        int [] getY = getPosiblesBloque(posicion.getVecinosY());
+        int [] getB = getPosiblesBloque(bloque.getNumeros());
 
-        return getPosibles(getX,getY,getB);
+        return getPosiblesTotal(getX,getY,getB);
     }
 
-    public Numero [] getPosibles(Numero [] numerosX, Numero [] numerosY, Numero [] numerosB){
-        ArrayList<Numero> posiblesSemiFinal = new ArrayList<>();
-        ArrayList<Numero> posiblesFinal = new ArrayList<>();
-        for(int i=0; i<Integer.max(numerosX.length, numerosY.length); i++){
-            if(numerosX[i].getNumero()==numerosY[i].getNumero()){
-                posiblesSemiFinal.add(numerosX[i]);
+    public int [] getPosiblesTotal(int [] numerosX, int [] numerosY, int [] numerosB){
+        ArrayList<Integer> posiblesSemiFinal = new ArrayList<>();
+        ArrayList<Integer> posiblesFinal = new ArrayList<>();
+        for(int i=0; i<numerosX.length; i++){
+            for(int j=0; j<numerosY.length; j++){
+                if(numerosX[i]==numerosY[j]){
+                    posiblesSemiFinal.add(numerosX[i]);
+                }
             }
         }
 
-        for(int i=0; i<Integer.max(posiblesSemiFinal.size(), numerosB.length); i++){
-            if(posiblesSemiFinal.get(i).getNumero()==numerosB[i].getNumero()){
+        for(int i=0; i<Integer.min(posiblesSemiFinal.size(), numerosB.length); i++){
+            if(posiblesSemiFinal.get(i)==numerosB[i]){
                 posiblesFinal.add(posiblesSemiFinal.get(i));
             }
         }
 
-        return posiblesFinal.toArray(new Numero[0]);
+        int [] numerosArr = new int[posiblesFinal.size()];
+        for(int i=0; i<posiblesFinal.size(); i++){
+            numerosArr[i] = posiblesFinal.get(i);
+        }
+        return numerosArr;
     }
 
-    public Numero [] getPosibles(Numero [] numeros){
-        Arrays.sort(numeros);
-        ArrayList<Numero>posibles=new ArrayList<>();
-        for(int i=1; i<=numeros.length; i++){
-            if(numeros[i].getNumero()!=i){
-                posibles.add(numeros[i]);
+    public int [] getPosiblesBloque(Numero [] numeros){
+        boolean encontrado = true;
+        ArrayList<Integer> posibles = new ArrayList<Integer>();
+
+        for(int j=0; j<9; j++) {
+            for (int i = 0; i < numeros.length; i++) {
+                if (buscar(numeros[i], j+1)) {
+                    encontrado = true;
+                    continue;
+                }
             }
+            if (!encontrado) {
+                posibles.add(j+1);
+            }
+            encontrado = false;
         }
-        return posibles.toArray(new Numero[0]);
+
+        int [] numerosArr = new int[posibles.size()];
+        for(int i=0; i<posibles.size(); i++){
+            numerosArr[i] = posibles.get(i);
+        }
+        return numerosArr;
+    }
+
+    public boolean buscar (Numero numero, int num){
+        if(numero.getNumero()==0){
+            return false;
+        }
+
+        if(numero.getNumero()==num){
+            return true;
+        }
+
+        return false;
     }
 }

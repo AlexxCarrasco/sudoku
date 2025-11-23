@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class sudoku extends JDialog{
     private JPanel panelP ;
@@ -123,6 +126,76 @@ public class sudoku extends JDialog{
             }
         }
 
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Bloque bloque1 = new Bloque(1);
+                Bloque bloque2 = new Bloque(2);
+                Bloque bloque3 = new Bloque(3);
+                Bloque bloque4 = new Bloque(4);
+                Bloque bloque5 = new Bloque(5);
+                Bloque bloque6 = new Bloque(6);
+                Bloque bloque7 = new Bloque(7);
+                Bloque bloque8 = new Bloque(8);
+                Bloque bloque9 = new Bloque(9);
+                Bloque bloque = null;
+                Bloque [] bloques = new Bloque[]{bloque1,bloque2,bloque3,bloque4,bloque5,bloque6,bloque7,bloque8,bloque9};
+                ArrayList<Numero>numeros = new ArrayList<>();
+                for(int i=0; i<matrizOr.length; i++){
+                    bloque = bloques[i];
+                    for(int j=0; j<matrizOr[i].length; j++){
+                        Numero numero = new Numero(matrizOr[i][j]);
+                        addPosiciones(numero, j);
+                        numeros.add(numero);
+                    }
+                    bloque.setNumeros(numeros.toArray(new Numero[0]));
+                    numeros.clear();
+                }
+                Matriz matriz = new Matriz(bloques);
+                Matriz nueva = Controlador.getInstance().resolver(matriz);
+
+               /* int [][] matrizNueva = new int[3][3];
+                int [] arrAux = new int[9];
+                int i=0; int j=0;
+                for(Bloque bloqueAux: nueva.getBloques()){
+                    for(Numero numeroAux: bloqueAux.getNumeros()){
+                        arrAux[i] = numeroAux.getNumero();
+                        i++;
+                    }
+                    matrizNueva[j] = arrAux;
+                    i=0;
+                }
+
+                sudoku.display(nueva);
+*/
+
+                System.out.println(nueva);
+            }
+        });
+    }
+
+    /*public void getNumerosNuevos(Matriz nueva, Matriz vieja){
+        ArrayList<Numero>numeros = new ArrayList<>();
+        for(Bloque bloque: vieja.getBloques()){
+            for(Numero numero: bloque.getNumeros()){
+
+            }
+        }
+
+    }*/
+
+    public void addPosiciones(Numero numero, int j){
+        switch (j){
+            case 0: numero.setPosicionX(1); numero.setPosicionY(1);break;
+            case 1: numero.setPosicionX(2); numero.setPosicionY(1);break;
+            case 2: numero.setPosicionX(3); numero.setPosicionY(1);break;
+            case 3: numero.setPosicionX(1); numero.setPosicionY(2);break;
+            case 4: numero.setPosicionX(2); numero.setPosicionY(2);break;
+            case 5: numero.setPosicionX(3); numero.setPosicionY(2);break;
+            case 6: numero.setPosicionX(1); numero.setPosicionY(3);break;
+            case 7: numero.setPosicionX(2); numero.setPosicionY(3);break;
+            case 8: numero.setPosicionX(3); numero.setPosicionY(3);break;
+        }
     }
 
     public void llenarPaneles(JPanel [] paneles) {
@@ -145,6 +218,7 @@ public class sudoku extends JDialog{
 
     public void llenarLetras(JLabel [] letras, int [] bloque) {
         //Solo pruebas
+        System.out.println("LETRAS " + letras.length);
         for(int i=0; i<letras.length; i++){
             letras[i].setFont(new Font("Arial", Font.BOLD, 42));
             letras[i].setVerticalAlignment(SwingConstants.CENTER);
@@ -164,7 +238,6 @@ public class sudoku extends JDialog{
         sudoku.pack();
         sudoku.setSize(1300,800);
         sudoku.setLocationRelativeTo(null);
-        sudoku.setAlwaysOnTop(true);
         sudoku.setVisible(true);
     }
 
