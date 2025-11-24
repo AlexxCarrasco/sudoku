@@ -42,8 +42,6 @@ public class Controlador {
 
         }
 
-
-
         if(!completo((matrizSudoku))){
             resolver(matrizSudoku);
         }

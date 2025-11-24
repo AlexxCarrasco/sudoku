@@ -31,6 +31,7 @@ public class sudoku extends JDialog{
     private JLabel titulo;
     private JPanel tituloPanel;
     private static int [][] matrizOr;
+    private static int [][] matrizVieja;
 
     public sudoku() {
         setContentPane(panelP);
@@ -114,15 +115,15 @@ public class sudoku extends JDialog{
 
         for(int i=0; i< matrizOr.length; i++){
             switch (i){
-                case 0: llenarLetras(letras1, matrizOr[i]);break;
-                case 1: llenarLetras(letras2, matrizOr[i]);break;
-                case 2: llenarLetras(letras3, matrizOr[i]);break;
-                case 3: llenarLetras(letras4, matrizOr[i]);break;
-                case 4: llenarLetras(letras5, matrizOr[i]);break;
-                case 5: llenarLetras(letras6, matrizOr[i]);break;
-                case 6: llenarLetras(letras7, matrizOr[i]);break;
-                case 7: llenarLetras(letras8, matrizOr[i]);break;
-                case 8: llenarLetras(letras9, matrizOr[i]);break;
+                case 0: llenarLetras(letras1, matrizOr[i],1);break;
+                case 1: llenarLetras(letras2, matrizOr[i],2);break;
+                case 2: llenarLetras(letras3, matrizOr[i],3);break;
+                case 3: llenarLetras(letras4, matrizOr[i],4);break;
+                case 4: llenarLetras(letras5, matrizOr[i],5);break;
+                case 5: llenarLetras(letras6, matrizOr[i],6);break;
+                case 6: llenarLetras(letras7, matrizOr[i],7);break;
+                case 7: llenarLetras(letras8, matrizOr[i],8);break;
+                case 8: llenarLetras(letras9, matrizOr[i],9);break;
             }
         }
 
@@ -167,9 +168,9 @@ public class sudoku extends JDialog{
                     i=0;
                     j++;
                 }
-
-                sudoku.display(matrizNueva);
-
+                matrizVieja = matrizOr;
+                matrizOr = matrizNueva;
+                sudoku.display(matrizOr);
 
                 System.out.println(nueva);
             }
@@ -218,11 +219,16 @@ public class sudoku extends JDialog{
         jPanel.add(jLabel, BorderLayout.CENTER);
     }
 
-    public void llenarLetras(JLabel [] letras, int [] bloque) {
+    public void llenarLetras(JLabel [] letras, int [] bloque, int index) {
         System.out.println("LETRAS " + letras.length);
         System.out.println("BLOQUE " + bloque.length);
 
         for(int i=0; i < letras.length; i++){
+            if(matrizVieja!=null){
+                if(matrizVieja[index-1][i]==0){
+                    letras[i].setForeground(Color.blue);
+                }
+            }
             letras[i].setFont(new Font("Arial", Font.BOLD, 42));
             letras[i].setVerticalAlignment(SwingConstants.CENTER);
             letras[i].setHorizontalAlignment(SwingConstants.CENTER);
