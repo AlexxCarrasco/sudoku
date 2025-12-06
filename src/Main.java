@@ -3,6 +3,7 @@ public class Main {
     public static void main(String[] args) {
 
         /*
+        //INTERMEDIO
      int [][] matrizSudoku = {
               {0,0,6,4,3,7,0,1,0},
               {0,3,1,0,0,5,4,6,7},
