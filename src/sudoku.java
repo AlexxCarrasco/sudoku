@@ -4,7 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-public class sudoku extends JDialog{
+public class sudoku extends JDialog implements Controlador.SudokuUpdateListener {
     private JPanel panelP ;
     private JPanel j11; private JPanel j12; private JPanel j13; private JPanel j14; private JPanel j15; private JPanel j16; private JPanel j17; private JPanel j18; private JPanel j19; private JPanel j1;
     private JLabel t11;private JLabel t12;private JLabel t13;private JLabel t14;private JLabel t15;private JLabel t16;private JLabel t17;private JLabel t18;private JLabel t19;
@@ -33,27 +33,33 @@ public class sudoku extends JDialog{
     private static int [][] matrizOr;
     private static int [][] matrizVieja;
 
+    // Campo para almacenar todos los JLabel por bloque
+    private JLabel[][] allLabels;
+
     public sudoku() {
         setContentPane(panelP);
 
-        JPanel [] paneles1 = new JPanel[] {j11,j12,j13,j14,j15,j16,j17,j18,j19};
         JLabel [] letras1 = new JLabel[] { t11,t12,t13,t14,t15,t16,t17,t18,t19};
-        JPanel [] paneles2 = new JPanel[] {j211,j221, j231, j241, j251,j261,j271,j281,j291};
+        JPanel [] paneles1 = new JPanel[] {j11,j12,j13,j14,j15,j16,j17,j18,j19};
         JLabel [] letras2 = new JLabel[] {t21,t22, t23, t24, t25,t26,t27,t28,t29};
-        JPanel [] paneles3 = new JPanel[] {j31,j32,j33,j34,j35,j36,j37,j38,j39};
+        JPanel [] paneles2 = new JPanel[] {j211,j221, j231, j241, j251,j261,j271,j281,j291};
         JLabel [] letras3 = new JLabel[] {t31,t32,t33,t34,t35,t36,t37,t38, t39};
-        JPanel [] paneles4 = new JPanel[]{j41,j42,j43,j44,j45,j46,j47,j48,j49};
+        JPanel [] paneles3 = new JPanel[] {j31,j32,j33,j34,j35,j36,j37,j38,j39};
         JLabel [] letras4 = new JLabel[] {t41,t42,t43,t44,t45,t46,t47,t48, t49};
-        JPanel [] paneles5 = new JPanel[]{j51,j52,j53,j54,j55,j56,j57,j58,j59};
+        JPanel [] paneles4 = new JPanel[]{j41,j42,j43,j44,j45,j46,j47,j48,j49};
         JLabel [] letras5 = new JLabel[]{t51,t52,t53,t54,t55,t56,t57,t58,t59};
-        JPanel [] paneles6 = new JPanel[]{j61,j62,j63,j64,j65,j66,j67,j68,j69};
+        JPanel [] paneles5 = new JPanel[]{j51,j52,j53,j54,j55,j56,j57,j58,j59};
         JLabel [] letras6 = new JLabel[]{t61,t62,t63,t64,t65,t66,t67,t68,t69};
-        JPanel [] paneles7 = new JPanel[]{j71,j72,j73,j74,j75,j76,j77,j78,j79};
+        JPanel [] paneles6 = new JPanel[]{j61,j62,j63,j64,j65,j66,j67,j68,j69};
         JLabel [] letras7 = new JLabel[]{t71,t72,t73,t74,t75,t76,t77,t78,t79};
-        JPanel [] paneles8 = new JPanel[]{j81,j82,j83,j84,j85,j86,j87,j88,j89};
+        JPanel [] paneles7 = new JPanel[]{j71,j72,j73,j74,j75,j76,j77,j78,j79};
         JLabel [] letras8 = new JLabel[]{t81,t82,t83,t84,t85,t86,t87,t88,t89};
-        JPanel [] paneles9 = new JPanel[]{j91,j92,j93,j94,j95,j96,j97,j98,j99};
+        JPanel [] paneles8 = new JPanel[]{j81,j82,j83,j84,j85,j86,j87,j88,j89};
         JLabel [] letras9 = new JLabel[]{t91,t92,t93,t94,t95,t96,t97,t98,t99};
+        JPanel [] paneles9 = new JPanel[]{j91,j92,j93,j94,j95,j96,j97,j98,j99};
+
+        // Almacenar todos los arrays de JLabel en un array de arrays para un fácil acceso
+        allLabels = new JLabel[][]{letras1, letras2, letras3, letras4, letras5, letras6, letras7, letras8, letras9};
 
         j1.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         llenarPaneles(paneles1);
@@ -130,6 +136,9 @@ public class sudoku extends JDialog{
         button.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // deshabilitar botón para evitar múltiples ejecuciones
+                button.setEnabled(false);
+
                 Bloque bloque1 = new Bloque(1);
                 Bloque bloque2 = new Bloque(2);
                 Bloque bloque3 = new Bloque(3);
@@ -153,39 +162,80 @@ public class sudoku extends JDialog{
                     numeros.clear();
                 }
                 Matriz matriz = new Matriz(bloques);
-                Matriz nueva = Controlador.getInstance().resolver(matriz);
 
-               int [][] matrizNueva = new int[9][9];
+                // ejecutar el resolver en un nuevo Thread para evitar el bloqueo del gui
+                new Thread(() -> {
+                    Matriz nueva = Controlador.getInstance().resolver(matriz, sudoku.this);
 
-                int i=0; int j=0;
-                for(Bloque bloqueAux: nueva.getBloques()){
-                    int [] arrAux = new int[9];
-                    for(Numero numeroAux: bloqueAux.getNumeros()){
-                        arrAux[i] = numeroAux.getNumero();
-                        i++;
-                    }
-                    matrizNueva[j] = arrAux;
-                    i=0;
-                    j++;
-                }
-                matrizVieja = matrizOr;
-                matrizOr = matrizNueva;
-                sudoku.display(matrizOr);
+                    // actualizar la matriz interna y re-habilitar el botón en el Event Dispatch Thread (EDT)
+                    SwingUtilities.invokeLater(() -> {
+                        int [][] matrizNueva = new int[9][9];
 
-                System.out.println(nueva);
+                        int i=0; int j=0;
+                        for(Bloque bloqueAux: nueva.getBloques()){
+                            int [] arrAux = new int[9];
+                            for(Numero numeroAux: bloqueAux.getNumeros()){
+                                arrAux[i] = numeroAux.getNumero();
+                                i++;
+                            }
+                            matrizNueva[j] = arrAux;
+                            i=0;
+                            j++;
+                        }
+                        matrizVieja = matrizOr;
+                        matrizOr = matrizNueva;
+
+                        button.setEnabled(true);
+                        System.out.println("Sudoku Resuelto.");
+                    });
+                }).start();
             }
         });
     }
 
-    /*public void getNumerosNuevos(Matriz nueva, Matriz vieja){
-        ArrayList<Numero>numeros = new ArrayList<>();
-        for(Bloque bloque: vieja.getBloques()){
-            for(Numero numero: bloque.getNumeros()){
 
-            }
-        }
+    @Override
+    public void actualizarBloque(int blockId, int posX, int posY, int value) {
+        // calcula el índice del array de JLabel (0-8)
+        int index = (posY - 1) * 3 + (posX - 1);
 
-    }*/
+        JLabel targetLabel = allLabels[blockId - 1][index];
+
+        // actualiza el JLabel con el nuevo valor
+        targetLabel.setText(String.valueOf(value));
+        targetLabel.setForeground(Color.BLUE);
+
+        // repintar
+        targetLabel.repaint();
+        //En caso de que se quiera ver como actua el backatring se habilita esta opcion
+        /*
+        try {
+            Thread.sleep(25); // 25ms
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }*/
+    }
+
+    @Override
+    public void resetearBloque(int blockId, int posX, int posY) {
+        int index = (posY - 1) * 3 + (posX - 1);
+
+        JLabel targetLabel = allLabels[blockId - 1][index];
+
+        // resetea el JLabel
+        targetLabel.setText(" ");
+        targetLabel.setForeground(Color.GREEN); // Color para indicar que se está retrocediendo
+
+        // repintar
+        targetLabel.repaint();
+        //En caso de que se quiera ver como actua el backatring se habilita esta opcion
+        /*
+        try {
+            Thread.sleep(25); // 25ms
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }*/
+    }
 
     public void addPosiciones(Numero numero, int j){
         switch (j){

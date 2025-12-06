@@ -1,11 +1,14 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 public class Controlador {
 
     private static Controlador instance = null;
+
+    // interfaz para notificar a la GUI
+    public interface SudokuUpdateListener {
+        // blockId es del 1 al 9, ordenados horizontalmente, post x es 1 o 2 o 3 y pos x es 1 o 2 o 3, valor es el numero
+        void actualizarBloque(int blockId, int posX, int posY, int valor);
+        void resetearBloque(int blockId, int posX, int posY);
+    }
 
     private Controlador(){
 
@@ -18,45 +21,98 @@ public class Controlador {
         return instance;
     }
 
-
-
-    public Matriz resolver(Matriz matrizSudoku){
-        for(Bloque bloque: matrizSudoku.getBloques()){
-            for(Numero numero: bloque.getNumeros()){
-                if(numero.getNumero()==0){
-                    if(numero.getVecinosX()[0]==null){
-                        getVecinosX(matrizSudoku, bloque, numero);
-                        getVecinosY(matrizSudoku, bloque, numero);
-                    }
-                    int [] posibles = getPosibles(bloque, numero);
-                    System.out.println("Numero es " + numero.getNumero());
-                    System.out.println("En el bloque " + bloque.getId());
-                    System.out.println(Arrays.toString(posibles));
-                    if(posibles.length==1){
-                        numero.setNumero(posibles[0]);
-                    }else{
-                        numero.setPosibles(posibles);
-                    }
-                }
-            }
-
-        }
-
-        if(!completo((matrizSudoku))){
-            resolver(matrizSudoku);
-        }
-
+    public Matriz resolver(Matriz matrizSudoku, SudokuUpdateListener interfaz){
+        solveBacktracking(matrizSudoku, interfaz);
         return matrizSudoku;
     }
 
-    public boolean completo(Matriz matriz){
-        for(Bloque bloque: matriz.getBloques()){
-            for(Numero numero: bloque.getNumeros()){
-                if(numero.getNumero()==0){
-                    return false;
+    // backtracking que va resolviendo el sudoku, interfaz es para actualizar la GUI
+    private boolean solveBacktracking(Matriz matrizSudoku, SudokuUpdateListener interfaz) {
+
+        Numero celdaVacia = null;
+        Bloque bloqueVacio = null;
+
+        // encontrar la siguiente celda vacía
+        for (Bloque bloque : matrizSudoku.getBloques()) {
+            for (Numero numero : bloque.getNumeros()) {
+                if (numero.getNumero() == 0) {
+                    celdaVacia = numero;
+                    bloqueVacio = bloque;
+                    break;
                 }
             }
+            if (celdaVacia != null) {
+                break;
+            }
         }
+
+        // si no se encuentra una celda vacía, se completo el alg.
+        if (celdaVacia == null) {
+            return true;
+        }
+
+        // si no hay vecinos se pobla con vecinos
+        if (celdaVacia.getVecinosX()[0] == null) {
+            getVecinosX(matrizSudoku, bloqueVacio, celdaVacia);
+            getVecinosY(matrizSudoku, bloqueVacio, celdaVacia);
+        }
+
+        // probar valores del 1 al 9
+        for (int valor = 1; valor <= 9; valor++) {
+
+            // si se puede insertar ingresa al if
+            if (esValido(bloqueVacio, celdaVacia, valor)) {
+                celdaVacia.setNumero(valor);
+
+                interfaz.actualizarBloque(
+                        bloqueVacio.getId(),
+                        celdaVacia.getPosicionX(),
+                        celdaVacia.getPosicionY(),
+                        valor
+                );
+
+                if (solveBacktracking(matrizSudoku, interfaz)) {
+                    // si la recursión tiene éxito, devuelve true
+                    return true;
+                }
+
+                // si la recursión falla, retrocede
+                celdaVacia.setNumero(0);
+                interfaz.resetearBloque(
+                        bloqueVacio.getId(),
+                        celdaVacia.getPosicionX(),
+                        celdaVacia.getPosicionY()
+                );
+            }
+        }
+
+        return false;
+    }
+
+    private boolean esValido(Bloque bloque, Numero posicion, int valor){
+
+        // verificar en el Bloque
+        for(Numero num: bloque.getNumeros()){
+            // se comprueba si el número ya existe en el bloque
+            if(num != posicion && num.getNumero() == valor){
+                return false;
+            }
+        }
+
+        // verificar en la fila (vecinosX)
+        for(Numero num: posicion.getVecinosX()){
+            if(num != null && num.getNumero() == valor){
+                return false;
+            }
+        }
+
+        // verificar en la columna (vecinosY)
+        for(Numero num: posicion.getVecinosY()){
+            if(num != null && num.getNumero() == valor){
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -151,78 +207,5 @@ public class Controlador {
             return new int[]{3,6};
         }
         return new int[]{};
-    }
-
-    public int [] getPosibles(Bloque bloque, Numero posicion){
-        int [] getX = getPosiblesBloque(posicion.getVecinosX());
-        int [] getY = getPosiblesBloque(posicion.getVecinosY());
-        int [] getB = getPosiblesBloque(bloque.getNumeros());
-
-        return getPosiblesTotal(getX,getY,getB);
-    }
-
-    public int [] getPosiblesTotal(int [] numerosX, int [] numerosY, int [] numerosB){
-        Set<Integer> setX = new HashSet<>();
-        for (int num : numerosX) {
-            setX.add(num);
-        }
-
-        Set<Integer> setY = new HashSet<>();
-        for (int num : numerosY) {
-            setY.add(num);
-        }
-
-        setX.retainAll(setY);
-
-        Set<Integer> setB = new HashSet<>();
-        for (int num : numerosB) {
-            setB.add(num);
-        }
-
-        setX.retainAll(setB);
-
-        int [] numerosArr = new int[setX.size()];
-        int index = 0;
-        for (int num : setX) {
-            numerosArr[index++] = num;
-        }
-
-        return numerosArr;
-    }
-
-    public int [] getPosiblesBloque(Numero [] numeros){
-        boolean encontrado = false;
-        ArrayList<Integer> posibles = new ArrayList<Integer>();
-
-        for(int j=0; j<9; j++) {
-            for (int i = 0; i < numeros.length; i++) {
-                if (buscar(numeros[i], j+1)) {
-                    encontrado = true;
-                    continue;
-                }
-            }
-            if (!encontrado) {
-                posibles.add(j+1);
-            }
-            encontrado = false;
-        }
-
-        int [] numerosArr = new int[posibles.size()];
-        for(int i=0; i<posibles.size(); i++){
-            numerosArr[i] = posibles.get(i);
-        }
-        return numerosArr;
-    }
-
-    public boolean buscar (Numero numero, int num){
-        if(numero.getNumero()==0){
-            return false;
-        }
-
-        if(numero.getNumero()==num){
-            return true;
-        }
-
-        return false;
     }
 }
